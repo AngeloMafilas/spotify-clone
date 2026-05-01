@@ -104,7 +104,7 @@ export const closeRoom = async (roomId: string, userId: string) => {
 /**
  * Initialize socket connection for room
  */
-export const initializeRoomSocket = (roomId: string) => {
+export const initializeRoomSocket = (_roomId: string) => {
 	if (!socket) {
 		socket = io(API_URL, {
 			transports: ["websocket", "polling"],

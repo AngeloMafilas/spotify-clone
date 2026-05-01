@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 const AdminPage = () => {
-const { isAdmin, isLoading, error, checkAdminStatus } = useAuthStore();
+const { isLoading, checkAdminStatus } = useAuthStore();
 
 	const { fetchAlbums, fetchSongs, fetchStats } = useMusicStore();
 

@@ -10,8 +10,11 @@ interface PlayerStore {
 
 	initializeQueue: (songs: Song[]) => void;
 	playAlbum: (songs: Song[], startIndex?: number) => void;
+	playSongs: (songs: Song[], startIndex?: number) => void;
 	setCurrentSong: (song: Song | null) => void;
 	togglePlay: () => void;
+	play: () => void;
+	pause: () => void;
 	playNext: () => void;
 	playPrevious: () => void;
 }
@@ -50,6 +53,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		});
 	},
 
+	playSongs: (songs: Song[], startIndex = 0) => {
+		get().playAlbum(songs, startIndex);
+	},
+
 	setCurrentSong: (song: Song | null) => {
 		if (!song) return;
 
@@ -85,6 +92,29 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		set({
 			isPlaying: willStartPlaying,
 		});
+	},
+
+	play: () => {
+		const currentSong = get().currentSong;
+		const socket = useChatStore.getState().socket;
+		if (socket.auth && currentSong) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `Playing ${currentSong.title} by ${currentSong.artist}`,
+			});
+		}
+		set({ isPlaying: true });
+	},
+
+	pause: () => {
+		const socket = useChatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: "Idle",
+			});
+		}
+		set({ isPlaying: false });
 	},
 
 	playNext: () => {

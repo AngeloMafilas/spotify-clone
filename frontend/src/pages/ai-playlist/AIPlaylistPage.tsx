@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { MainLayout } from "@/layout/MainLayout";
+import { useState } from "react";
+import MainLayout from "@/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,13 +10,11 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import toast from "react-hot-toast";
 
 export default function AIPlaylistPage() {
-	const navigate = useNavigate();
 	const { songs } = useMusicStore();
 	const { playSongs } = usePlayerStore();
 
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [generatedPlaylist, setGeneratedPlaylist] = useState<string[]>([]);
 	const [matchedSongs, setMatchedSongs] = useState<any[]>([]);
 
 	const handleGeneratePlaylist = async () => {
@@ -31,7 +28,7 @@ export default function AIPlaylistPage() {
 			const availableSongs = songs.map((s) => s.title);
 			const result = await generatePlaylist(prompt, availableSongs);
 
-			setGeneratedPlaylist(result.playlist);
+			// setGeneratedPlaylist(result.playlist);
 
 			// Match generated song titles with actual song objects
 			const matched = songs.filter((song) =>

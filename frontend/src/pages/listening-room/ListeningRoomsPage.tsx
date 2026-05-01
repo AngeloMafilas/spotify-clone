@@ -16,7 +16,6 @@ import {
 	Plus,
 	Music,
 	Play,
-	Pause,
 	Mic2,
 	X,
 	Copy,
@@ -32,22 +31,20 @@ import {
 	joinRoomSocket,
 	leaveRoomSocket,
 	syncPlay,
-	syncPause,
-	syncSeek,
 	sendRoomMessage,
 	disconnectSocket,
 	type Room,
 } from "@/services/roomService";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import toast from "react-hot-toast";
 
 export default function ListeningRoomsPage() {
-	const navigate = useNavigate();
-	const { userId, user } = useAuth();
+	const { userId } = useAuth();
+	const { user } = useUser();
 	const { songs } = useMusicStore();
-	const { currentSong, isPlaying, playSongs, pause, play } = usePlayerStore();
+	const { currentSong, isPlaying, playSongs, pause } = usePlayerStore();
 
 	const [rooms, setRooms] = useState<Room[]>([]);
 	const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
@@ -71,21 +68,21 @@ export default function ListeningRoomsPage() {
 		if (currentRoom) {
 			const socket = initializeRoomSocket(currentRoom._id);
 
-			socket.on("room_state", ({ room }) => {
+			socket.on("room_state", ({ room }: { room: Room }) => {
 				setCurrentRoom(room);
 			});
 
-			socket.on("user_joined_room", ({ userId, username }) => {
+			socket.on("user_joined_room", ({ username }: { userId: string; username: string }) => {
 				toast.success(`${username} joined the room`);
 				loadRooms();
 			});
 
-			socket.on("user_left_room", ({ userId, username }) => {
+			socket.on("user_left_room", ({ username }: { userId: string; username: string }) => {
 				toast(`${username} left the room`);
 				loadRooms();
 			});
 
-			socket.on("play_song", ({ song, currentTime }) => {
+			socket.on("play_song", ({ song }: { song: any, currentTime: number }) => {
 				// Find song in library and play
 				const songToPlay = songs.find((s) => s._id === song.songId || s.title === song.title);
 				if (songToPlay) {
@@ -97,7 +94,7 @@ export default function ListeningRoomsPage() {
 				pause();
 			});
 
-			socket.on("receive_room_message", (msg) => {
+			socket.on("receive_room_message", (msg: any) => {
 				setRoomMessages((prev) => [...prev, msg]);
 			});
 
@@ -110,6 +107,7 @@ export default function ListeningRoomsPage() {
 				socket.off("receive_room_message");
 			};
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentRoom, songs]);
 
 	const loadRooms = async () => {
@@ -406,7 +404,7 @@ export default function ListeningRoomsPage() {
 				</div>
 
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-					{rooms.map((room) => (
+					{rooms.map((room: Room) => (
 						<Card
 							key={room._id}
 							className='bg-zinc-800/50 border-zinc-700 hover:border-blue-500 transition-colors cursor-pointer'
