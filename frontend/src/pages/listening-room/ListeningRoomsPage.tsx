@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,7 +43,7 @@ export default function ListeningRoomsPage() {
 	const { userId } = useAuth();
 	const { user } = useUser();
 	const { songs } = useMusicStore();
-	const { currentSong, isPlaying, playSongs, pause } = usePlayerStore();
+	const { playSongs, pause } = usePlayerStore();
 
 	const [rooms, setRooms] = useState<Room[]>([]);
 	const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
