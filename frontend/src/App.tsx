@@ -22,14 +22,13 @@ function App() {
 				/>
 				<Route path='/auth-callback' element={<AuthCallbackPage />} />
 				<Route path='/admin' element={<AdminPage />} />
-				<Route path='/ai-playlist' element={<AIPlaylistPage />} />
-				<Route path='/rooms' element={<ListeningRoomsPage />} />
-				<Route path='/rooms/:roomId' element={<ListeningRoomsPage />} />
-
 				<Route element={<MainLayout />}>
 					<Route path='/' element={<HomePage />} />
 					<Route path='/chat' element={<ChatPage />} />
 					<Route path='/albums/:albumId' element={<AlbumPage />} />
+					<Route path='/ai-playlist' element={<AIPlaylistPage />} />
+					<Route path='/rooms' element={<ListeningRoomsPage />} />
+					<Route path='/rooms/:roomId' element={<ListeningRoomsPage />} />
 					<Route path='*' element={<NotFoundPage />} />
 				</Route>
 			</Routes>
