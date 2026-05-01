@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/lib/axios";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import AICoverGenerator from "@/components/coverArt/AICoverGenerator";
 
 const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
@@ -26,27 +27,41 @@ const AddAlbumDialog = () => {
 	});
 
 	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [aiGeneratedCover, setAiGeneratedCover] = useState<{ url: string; publicId: string } | null>(null);
 
 	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
 			setImageFile(file);
+			setAiGeneratedCover(null); // Clear AI cover when manual file is selected
 		}
+	};
+
+	const handleCoverGenerated = (imageUrl: string, publicId: string) => {
+		setAiGeneratedCover({ url: imageUrl, publicId });
+		setImageFile(null); // Clear manual file selection
 	};
 
 	const handleSubmit = async () => {
 		setIsLoading(true);
 
 		try {
-			if (!imageFile) {
-				return toast.error("Please upload an image");
+			if (!imageFile && !aiGeneratedCover?.url) {
+				return toast.error("Please upload an image or generate AI cover art");
 			}
 
 			const formData = new FormData();
 			formData.append("title", newAlbum.title);
 			formData.append("artist", newAlbum.artist);
 			formData.append("releaseYear", newAlbum.releaseYear.toString());
-			formData.append("imageFile", imageFile);
+
+			// Handle AI-generated cover (upload from URL)
+			if (aiGeneratedCover?.url) {
+				formData.append("imageUrl", aiGeneratedCover.url);
+				formData.append("isAiGenerated", "true");
+			} else if (imageFile) {
+				formData.append("imageFile", imageFile);
+			}
 
 			await axiosInstance.post("/admin/albums", formData, {
 				headers: {
@@ -60,6 +75,7 @@ const AddAlbumDialog = () => {
 				releaseYear: new Date().getFullYear(),
 			});
 			setImageFile(null);
+			setAiGeneratedCover(null);
 			setAlbumDialogOpen(false);
 			toast.success("Album created successfully");
 		} catch (error: any) {
@@ -90,20 +106,42 @@ const AddAlbumDialog = () => {
 						accept='image/*'
 						className='hidden'
 					/>
+					<div className='flex items-center justify-between gap-2 mb-2'>
+						<label className='text-sm font-medium'>Album Artwork</label>
+						<AICoverGenerator onCoverGenerated={handleCoverGenerated} />
+					</div>
 					<div
 						className='flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer'
 						onClick={() => fileInputRef.current?.click()}
 					>
 						<div className='text-center'>
-							<div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
-								<Upload className='h-6 w-6 text-zinc-400' />
-							</div>
-							<div className='text-sm text-zinc-400 mb-2'>
-								{imageFile ? imageFile.name : "Upload album artwork"}
-							</div>
-							<Button variant='outline' size='sm' className='text-xs'>
-								Choose File
-							</Button>
+							{aiGeneratedCover?.url ? (
+								<>
+									<div className='relative aspect-square w-32 mx-auto rounded-lg overflow-hidden mb-3'>
+										<img
+											src={aiGeneratedCover.url}
+											alt='AI generated cover'
+											className='w-full h-full object-cover'
+										/>
+									</div>
+									<div className='flex items-center gap-2 text-sm text-green-400'>
+										<Sparkles className='w-4 h-4' />
+										AI Generated Cover
+									</div>
+								</>
+							) : (
+								<>
+									<div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
+										<Upload className='h-6 w-6 text-zinc-400' />
+									</div>
+									<div className='text-sm text-zinc-400 mb-2'>
+										{imageFile ? imageFile.name : "Upload album artwork or use AI generator"}
+									</div>
+									<Button variant='outline' size='sm' className='text-xs'>
+										Choose File
+									</Button>
+								</>
+							)}
 						</div>
 					</div>
 					<div className='space-y-2'>
@@ -144,7 +182,7 @@ const AddAlbumDialog = () => {
 					<Button
 						onClick={handleSubmit}
 						className='bg-violet-500 hover:bg-violet-600'
-						disabled={isLoading || !imageFile || !newAlbum.title || !newAlbum.artist}
+						disabled={isLoading || (!imageFile && !aiGeneratedCover?.url) || !newAlbum.title || !newAlbum.artist}
 					>
 						{isLoading ? "Creating..." : "Add Album"}
 					</Button>

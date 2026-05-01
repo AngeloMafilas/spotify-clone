@@ -1,10 +1,13 @@
 import Topbar from "@/components/Topbar";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import FeaturedSection from "./components/FeaturedSection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const HomePage = () => {
 	const {
@@ -37,7 +40,15 @@ const HomePage = () => {
 			<Topbar />
 			<ScrollArea className='h-[calc(100vh-180px)]'>
 				<div className='p-4 sm:p-6'>
-					<h1 className='text-2xl sm:text-3xl font-bold mb-6'>Good afternoon</h1>
+					<div className='flex items-center justify-between mb-6'>
+						<h1 className='text-2xl sm:text-3xl font-bold'>Good afternoon</h1>
+						<Link to='/ai-playlist'>
+							<Button className='bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 gap-2'>
+								<Sparkles className='w-4 h-4' />
+								AI Playlist Generator
+							</Button>
+						</Link>
+					</div>
 					<FeaturedSection />
 
 					<div className='space-y-8'>

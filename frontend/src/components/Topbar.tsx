@@ -17,16 +17,14 @@ const Topbar = () => {
     '
 		>
 			<div className='flex gap-2 items-center'>
-				<img src='/spotify.png' className='size-8' alt='Spotify logo' />
-				Spotify
+				<img src='/logo-bg.png' className='size-8' alt='AI logo' />
+				Audiocloud
 			</div>
 			<div className='flex items-center gap-4'>
-				{isAdmin && (
-					<Link to={"/admin"} className={cn(buttonVariants({ variant: "outline" }))}>
-						<LayoutDashboardIcon className='size-4  mr-2' />
-						Admin Dashboard
-					</Link>
-				)}
+				<Link to={"/admin"} className={cn(buttonVariants({ variant: "outline" }))}>
+					<LayoutDashboardIcon className='size-4  mr-2' />
+					Admin Dashboard
+				</Link>
 
 				<SignedOut>
 					<SignInOAuthButtons />

@@ -9,17 +9,18 @@ import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 const AdminPage = () => {
-	const { isAdmin, isLoading } = useAuthStore();
+const { isAdmin, isLoading, error, checkAdminStatus } = useAuthStore();
 
 	const { fetchAlbums, fetchSongs, fetchStats } = useMusicStore();
 
-	useEffect(() => {
+useEffect(() => {
+		checkAdminStatus();
 		fetchAlbums();
 		fetchSongs();
 		fetchStats();
-	}, [fetchAlbums, fetchSongs, fetchStats]);
+	}, [checkAdminStatus, fetchAlbums, fetchSongs, fetchStats]);
 
-	if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
+	if (isLoading) return <div className='flex items-center justify-center h-screen'><span className='text-lg'>Loading...</span></div>;
 
 	return (
 		<div

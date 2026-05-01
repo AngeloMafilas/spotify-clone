@@ -76,10 +76,21 @@ export const deleteSong = async (req, res, next) => {
 
 export const createAlbum = async (req, res, next) => {
 	try {
-		const { title, artist, releaseYear } = req.body;
-		const { imageFile } = req.files;
+		const { title, artist, releaseYear, imageUrl: imageUrlFromBody, isAiGenerated } = req.body;
 
-		const imageUrl = await uploadToCloudinary(imageFile);
+		let imageUrl;
+
+		// Handle AI-generated cover (URL provided) vs manual upload
+		if (imageUrlFromBody && isAiGenerated === "true") {
+			// AI-generated image URL - already hosted, use directly
+			imageUrl = imageUrlFromBody;
+		} else if (req.files && req.files.imageFile) {
+			// Traditional file upload
+			const { imageFile } = req.files;
+			imageUrl = await uploadToCloudinary(imageFile);
+		} else {
+			return res.status(400).json({ message: "Please provide an image file or AI-generated imageUrl" });
+		}
 
 		const album = new Album({
 			title,
